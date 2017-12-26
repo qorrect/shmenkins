@@ -5,12 +5,10 @@ A tiny library to run your Jenkinsfile through the commandline with 100% pass th
 To run , simply copy the shmenkins.groovy to the project you have your Jenkinsfile in , and run 
 
 ```
-
 groovy shemnkins.groovy 
-
 ```
 
-This will attempt to run all the stages locally.
+This will attempt to run all the stages locally.  Any parameters you have defined will need to be added to shmenkins.groovy in the top part of the file.
 
 ## What is it
 
@@ -19,4 +17,5 @@ Shmenkins tries to stub out most of the internal Jenkinsfile functions.  Because
 ### Plugins Supported
 
 [fileLoader](https://github.com/jenkinsci/workflow-remote-loader-plugin) - returns a text copy of the file from the directory its run in, so currently you have to link all your loaded files to the project root
+
 [configFileProvider](https://wiki.jenkins.io/display/JENKINS/Config+File+Provider+Plugin) - Currently does nothing, need a smarter way to default to sane values like ~/.m2/settings.xml
