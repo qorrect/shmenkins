@@ -71,6 +71,19 @@ class fileLoader {
   static def fromGit(String libPath, String repository, String branch, String credentailsId, String labelExpression) {
     GroovyShell shell = new GroovyShell()
     def script = shell.evaluate(new File(libPath))
+
+    script.sh = { def s ->
+      if ((s instanceof Map)) {
+	s = s["script"]
+      }
+      print("Executing ${s}\n")
+      def p = ['/bin/bash','-c',s].execute()
+      p.waitFor()
+      def ret = p.text
+      println ret
+      return ret 
+    }
+
     // def script = shell.parse(new File(libPath))
     return script
     

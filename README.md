@@ -1,21 +1,20 @@
 # Jenkins, Shmenkins
 
-A tiny library to run your Jenkinsfile through the commandline with 100% pass through ( it will execute everything locally not in any container ).
+A tiny library to run your Jenkinsfile through the commandline with 100% pass through ( it will execute everything locally not in any container or remotely ).
 
-To run , simply copy the shmenkins.groovy to your project directory, import it into your Jenkinsfile with
-
-```java
-
-import static shmenkins.*
-import static shmenkins.fileLoader
+To run , simply copy the shmenkins.groovy to the project you have your Jenkinsfile in , and run 
 
 ```
 
-and run the command with `groovy Jenkinsfile` , which will execute the stages.  This stubs out any checkout logic, it assumes a Jenkinsfile in the project root.
+groovy shemnkins.groovy 
+
+```
+
+This will attempt to run all the stages locally.
 
 ## What is it
 
-Shmenkins tries to stub out most of the internal Jenkinsfile functions.  Plugins like fileLoader above are additional static imports.
+Shmenkins tries to stub out most of the internal Jenkinsfile functions.  Because of the myriad of plugins, it likely wont work out of the box, please create an issue for any plugins not currently supported.
 
 ### Plugins Supported
 
