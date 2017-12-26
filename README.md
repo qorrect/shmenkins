@@ -11,4 +11,12 @@ import static shmenkins.*
 
 ```
 
-This tries to stub out most of the internal Jenkinsfile functions , if it doesnt please let me know and I'll add it.  Plugins like fileLoader above are additional static imports.
+and run the command with `groovy Jenkinsfile` , which will execute the stages.
+
+## What is it
+
+Shmenkins tries to stub out most of the internal Jenkinsfile functions , if it doesnt please let me know and I'll add it.  Plugins like fileLoader above are additional static imports.
+
+### Plugins Supported
+
+[https://github.com/jenkinsci/workflow-remote-loader-plugin](fileLoader) - returns a text copy of the file from the directory its run in, so currently you have to link all your loaded files to the project root
