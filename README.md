@@ -19,4 +19,4 @@ Shmenkins tries to stub out most of the internal Jenkinsfile functions , if it d
 
 ### Plugins Supported
 
-[https://github.com/jenkinsci/workflow-remote-loader-plugin](fileLoader) - returns a text copy of the file from the directory its run in, so currently you have to link all your loaded files to the project root
+[fileLoader](https://github.com/jenkinsci/workflow-remote-loader-plugin) - returns a text copy of the file from the directory its run in, so currently you have to link all your loaded files to the project root
