@@ -36,6 +36,10 @@ public class Shmenkins {
   static def step (Map o){}
   static def parameters (List l){}
   static def booleanParam(Map m){}
+  static def writeFile(Map m){
+    new File(m["file"]).write(m["text"])
+  }
+  static def archiveArtifacts(Map m){}
   static def string(Map m){}
   static def git (Map o){}
   static def checkout(String s) {}
@@ -57,6 +61,7 @@ public class Shmenkins {
   static def podTemplate(Map options, Closure body) {body() }
   static def container(String s, Closure body){println("Container ${s}");body() }
   static def stage(String s, Closure body){println("Stage ${s}");    body() }
+  static def stage(String s){println("Stage ${s}")}
   static def withCredentials(List l, Closure body) {println("WithCredentials ${l}");    body() }
   static def echo (String s) {println(s);}
   static def sh(Map m) { return sh(m['script'] ) }

@@ -1,7 +1,20 @@
+/**
+
+   To use these functions in your own Jenkinsfile, simply
+
+   def util = fileLoader.fromGit('contrib/buildUtils.groovy','https://github.com/qorrect/shmenkins', 'master' )
+   util.DEFAULT_SLACK_URL  = 'https://hooks.slack.com/services/xxx/yyy/zzz'
+   util.DEFAULT_DOCKER_REGISTRY = 'registry.hub.docker.com'
+
+   util.parseJson("")
+
+ **/
+
 import groovy.json.JsonOutput
 
 def DEEFAULT_SLACK_URL = ""
 def DEFAULT_DOCKER_REGISTRY = ""
+def DEFAULT_REGION =  "us-east-1"
 
 class DeployChoices { 
   public static String NONE = "Do not deploy";
@@ -12,6 +25,11 @@ class DeployChoices {
 // All functions need to be wrapped in a node() {} block
 
 def getDeployChoices() { return new DeployChoices() }
+
+def _sh(String s)
+{
+  return parseJson(sh(script:"${s}",returnStdout: true))
+}
 
 def parseJson(def json) {
   new groovy.json.JsonSlurperClassic().parseText(json)
@@ -33,10 +51,10 @@ def dockerBuildAndPush(def build_label /*="my-project:latest"*/, def tag = "blan
   sh "docker push $docker_registry/$build_label"
 }
 
-def awsGetInstancesForCluster(def cluster, def region = "us-east-1" )
+def awsGetInstancesForCluster(def cluster, def region = DEFAULT_REGION )
 {
   def ret = ""
-  def result = parseJson(sh(script:    "aws ecs list-attributes --region ${region} --cluster ${cluster} --target-type container-instance --attribute-name ecs.instance-type",returnStdout: true))
+  def result = _sh("aws ecs list-attributes --region ${region} --cluster ${cluster} --target-type container-instance --attribute-name ecs.instance-type")
   for ( def attr : result["attributes"] )
   {
     ret += attr["targetId"] + " "
@@ -45,26 +63,28 @@ def awsGetInstancesForCluster(def cluster, def region = "us-east-1" )
   return ret[0..-2]
 }
 
-def awsStartTaskForCluster(def task, def cluster , def region = "us-east-1" )
+def awsStartTaskForCluster(def task, def cluster , def region = DEFAULT_REGION )
 {
   def containers = awsGetInstancesForCluster(cluster)
-  sh "aws ecs start-task --task-definition ${task} --region ${region} --cluster ${cluster} --container-instances $containers"  
+  return _sh("aws ecs start-task --task-definition ${task} --region ${region} --cluster ${cluster} --container-instances $containers" )
 }
 
-def awsRestartTasksForCluster(def task, def cluster , def region = "us-east-1" )
+def awsRestartTasksForCluster(def task, def cluster , def region = DEFAULT_REGION )
 {
   // Stop all tasks related to the cluster, the cluster will then relaunch the task with the :latest tag
-  def result = parseJson(sh(script: "aws ecs list-tasks --region ${region} --service ${cluster} --cluster ${cluster}",returnStdout: true))
+  def result = _sh("aws ecs list-tasks --region ${region} --service ${cluster} --cluster ${cluster}")
+  def ret = [ failures : [] ]
   // If tasks are running, stop them 
   if (result["taskArns"].size() ) {
     for ( String taskId : result["taskArns"]  ) {
-      sh "aws ecs stop-task --task ${taskId} --region ${region} --cluster ${cluster}"
+      ret = _sh("aws ecs stop-task --task ${taskId} --region ${region} --cluster ${cluster}")
     }
   }
   // Otherwise start a new task 
   else {
-    awsStartTaskForCluster(task, cluster)
+    ret = awsStartTaskForCluster(task, cluster)
   }
+  return ret
 }
 
 return this
