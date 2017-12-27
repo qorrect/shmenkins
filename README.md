@@ -8,7 +8,7 @@ To run , simply copy the latest [Shmenkinsfile](https://github.com/qorrect/shmen
 groovy Shmenkinsfile
 ```
 
-to the Jenkinsfile will be executed locally stage by stage.
+to have you Jenkinsfile executed locally.
 
 ## Customizing
 

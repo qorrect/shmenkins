@@ -2,7 +2,6 @@
    From the Shmeknins project -> https://github.com/qorrect/shmenkins
  **/
 
-
 GroovyShell shell = new GroovyShell()
 def Jenkinsfile = shell.parse(new File("Jenkinsfile"))
 
@@ -12,6 +11,14 @@ Jenkinsfile.MAVEN_SETTINGS = "~/.m2/settings.xml"
 Jenkinsfile.env = [:]
 Jenkinsfile.params = [ DEPLOY_TARGET : "Do not deploy" ]
 // End SECTION TO CUSTOMIZE
+
+
+@Grapes(
+    @Grab(group='org.apache.maven', module='maven-model', version='3.0.2')
+)
+
+import groovy.json.JsonSlurper;
+import org.apache.maven.model.io.xpp3.MavenXpp3Reader
 
 public class Shmenkins {
   static def configFile (Map o){}
@@ -28,10 +35,18 @@ public class Shmenkins {
   static def choice (Map o){}
   static def step (Map o){}
   static def parameters (List l){}
+  static def booleanParam(Map m){}
+  static def string(Map m){}
   static def git (Map o){}
   static def checkout(String s) {}
   static def readFile(String s) {
     return new File(s).text
+  }
+  static def readMavenPom(Map m) {
+    //    def s = .text
+    //return new XmlSlurper().parseText(s)
+    return new MavenXpp3Reader().read(new FileInputStream(new File(m["file"])))
+
   }
   static def cron (String s){}
   static def pipelineTriggers (List l){}
