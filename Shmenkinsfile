@@ -1,71 +1,74 @@
+/**
+   From the Shmeknins project -> https://github.com/qorrect/shmenkins
+ **/
+
 
 GroovyShell shell = new GroovyShell()
 def Jenkinsfile = shell.parse(new File("Jenkinsfile"))
 
-// Custom environment
+// SECTION TO CUSTOMIZE
+// Set required variables here
 Jenkinsfile.MAVEN_SETTINGS = "~/.m2/settings.xml"
-Jenkinsfile.env = [ BRANCH : "dev" ]
+Jenkinsfile.env = [:]
 Jenkinsfile.params = [ DEPLOY_TARGET : "Do not deploy" ]
-// End Custom environment 
+// End SECTION TO CUSTOMIZE
 
-def sh ( String s) {
-  print("Executing ${s}")
-  def p = ['/bin/bash','-c',s].execute()
-  p.waitFor()
-  def ret = p.text
-  println ret
-  return ret 
-}
-def sh (Map m) {
-  return sh(m['script'] )
+public class Shmenkins {
+  static def configFile (Map o){}
+  static def configFileProvider (List l,Closure body){
+    body()
+  }  
+  static def fileLoader = new fileLoader()
+  static def scm = ""
+  static def currentBuild = [ number : 1 , rawBuild: null ]
+  static def params = [ DEPLOY_TARGET : "Do not deploy" ]
+  static def containerTemplate(Map options ) {}
+  static def hostPathVolume(Map options ) {} 
+  static def disableConcurrentBuilds() {}
+  static def choice (Map o){}
+  static def step (Map o){}
+  static def parameters (List l){}
+  static def git (Map o){}
+  static def checkout(String s) {}
+  static def readFile(String s) {
+    return new File(s).text
+  }
+  static def cron (String s){}
+  static def pipelineTriggers (List l){}
+  static def properties (List l){}
+  static def node (String n = "",Closure body)  {
+    body()
+  }
+  static def podTemplate(Map options, Closure body) {
+    body()
+  }
+  static def container(String s, Closure body){
+    println("Container ${s}")
+    body()
+  }
+  static def stage(String s, Closure body){
+    println("Stage ${s}")
+    body()
+  }
+  static def withCredentials(List l, Closure body) {
+    println("WithCredentials ${l}")
+    body()
+  }
+  static def echo (String s) {
+    println(s)
+  }
+  static def sh(Map m) { return sh(m['script'] ) }
+  static def sh(String s) {
+    print("Executing ${s}\n(Waiting)\n")
+    def p = ['/bin/bash','-c',s].execute()
+    p.waitFor()
+    def ret = p.text
+    println ret
+    return ret 
+  
+  }
 }
 
-Jenkinsfile.scm = ""
-Jenkinsfile.currentBuild = [ number : 1 , rawBuild: null ]
-Jenkinsfile.containerTemplate =  { Map m -> } 
-Jenkinsfile.hostPathVolume =  { o -> } 
-Jenkinsfile.podTemplate = { Map options, Closure body -> 
-  body()
-}
-Jenkinsfile.choice  = { Map o -> }
-Jenkinsfile.step  = { Map o -> }
-Jenkinsfile.parameters  = { List l -> }
-Jenkinsfile.git  = { Map o -> }
-Jenkinsfile.checkout =   { String s -> }
-Jenkinsfile.cron  = { String s -> }
-Jenkinsfile.pipelineTriggers  = { List l -> }
-Jenkinsfile.properties  = { List l -> }
-Jenkinsfile.disableConcurrentBuilds = {}
-Jenkinsfile.sh = this.&sh
-
-Jenkinsfile.readFile =  { String s ->
-  return new File(s).text
-}
-Jenkinsfile.node =  { String n = "",Closure body -> 
-  body()
-}
-Jenkinsfile.container=  { String s, Closure body -> 
-  println("Container ${s}")
-  body()
-}
-Jenkinsfile.stage=  {String s, Closure body -> 
-  println("Stage ${s}")
-  body()
-}
-
-Jenkinsfile.withCredentials= { List l, Closure body -> 
-  println("WithCredentials ${l}")
-  body()
-}
-Jenkinsfile.echo = { String s -> 
-  println(s)
-}
-
-//Plugins
-Jenkinsfile.configFile = { Map o }
-Jenkinsfile.configFileProvider  = { List l,Closure body -> 
-  body()
-}  
 
 class fileLoader {
   static def fromGit(String libPath, String repository, String branch, String credentailsId, String labelExpression) {
@@ -90,5 +93,5 @@ class fileLoader {
   }
 }
 
-Jenkinsfile.fileLoader = fileLoader
+Jenkinsfile.metaClass.mixin Shmenkins
 Jenkinsfile.run()
