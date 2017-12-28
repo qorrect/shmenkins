@@ -1,5 +1,6 @@
+#!/usr/bin/env groovy
 /**
-   From the Shmeknins project -> https://github.com/qorrect/shmenkins
+   From the Shmenkins project -> https://github.com/qorrect/shmenkins
  **/
 
 GroovyShell shell = new GroovyShell()
@@ -8,19 +9,21 @@ def Jenkinsfile = shell.parse(new File("Jenkinsfile"))
 // SECTION TO CUSTOMIZE
 // Set required variables here
 Jenkinsfile.MAVEN_SETTINGS = "~/.m2/settings.xml"
-Jenkinsfile.env = [:]
-Jenkinsfile.params = [ DEPLOY_TARGET : "Do not deploy" ,SKIP_TESTS:true]
+Jenkinsfile.env = [ BRANCH_NAME : "development"]
+Jenkinsfile.params = [ DEPLOY_TARGET : "Do not deploy" ,SKIP_TESTS:true ]
 // End SECTION TO CUSTOMIZE
 
 
-@Grapes(
-    @Grab(group='org.apache.maven', module='maven-model', version='3.0.2')
-)
+
+@Grab(group='org.apache.maven', module='maven-model', version='3.0.2')
 
 import groovy.json.JsonSlurper;
 import org.apache.maven.model.io.xpp3.MavenXpp3Reader
 
 public class Shmenkins {
+
+  static def CURRENT_DIRECTORY = "./"
+  
   static def configFile (Map o){}
   static def configFileProvider (List l,Closure body){
     body()
@@ -47,10 +50,7 @@ public class Shmenkins {
     return new File(s).text
   }
   static def readMavenPom(Map m) {
-    //    def s = .text
-    //return new XmlSlurper().parseText(s)
-    return new MavenXpp3Reader().read(new FileInputStream(new File(m["file"])))
-
+    return new MavenXpp3Reader().read(new FileInputStream(new File(this.CURRENT_DIRECTORY,m["file"])))
   }
   static def cron (String s){}
   static def pipelineTriggers (List l){}
@@ -65,20 +65,23 @@ public class Shmenkins {
   static def withCredentials(List l, Closure body) {println("WithCredentials ${l}");    body() }
   static def echo (String s) {println(s);}
   static def sh(Map m) { return sh(m['script'] ) }
+  static def dir(String d,Closure f) {
+    this.CURRENT_DIRECTORY=d
+    f()
+    this.CURRENT_DIRECTORY="./"
+  }
   static def sh(String s) {
-    print("Executing ${s}\n(Waiting)\n")
-    def p = ['/bin/bash','-c',s].execute()
-    p.waitFor()
-    def ret = p.text
-    println ret
-    return ret 
-  
+      print("Executing cd ${this.CURRENT_DIRECTORY} && ${s}\n(Waiting)\n")
+      def p = ['/bin/bash','-c',"cd ${this.CURRENT_DIRECTORY} && ${s}"].execute()
+      p.waitFor()
+      def ret = p.text
+      println ret
+      return ret
   }
 }
 
-
 class fileLoader {
-  static def fromGit(String libPath, String repository, String branch, String credentailsId, String labelExpression) {
+  static def fromGit(String libPath, String repository, String branch="", String credentailsId="", String labelExpression="") {
     GroovyShell shell = new GroovyShell()
     def script = shell.evaluate(new File(libPath))
 

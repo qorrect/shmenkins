@@ -5,7 +5,7 @@
    def util = fileLoader.fromGit('contrib/buildUtils.groovy','https://github.com/qorrect/shmenkins', 'master' )
    util.DEFAULT_SLACK_URL  = 'https://hooks.slack.com/services/xxx/yyy/zzz'
    util.DEFAULT_DOCKER_REGISTRY = 'registry.hub.docker.com'
-
+   util.DEFAULT_REGION =  "us-east-1"
    util.parseJson("")
 
  **/
@@ -26,7 +26,7 @@ class DeployChoices {
 
 def getDeployChoices() { return new DeployChoices() }
 
-def _sh(String s)
+def execAndParseJson(String s)
 {
   return parseJson(sh(script:"${s}",returnStdout: true))
 }
@@ -54,7 +54,7 @@ def dockerBuildAndPush(def build_label /*="my-project:latest"*/, def tag = "blan
 def awsGetInstancesForCluster(def cluster, def region = DEFAULT_REGION )
 {
   def ret = ""
-  def result = _sh("aws ecs list-attributes --region ${region} --cluster ${cluster} --target-type container-instance --attribute-name ecs.instance-type")
+  def result = execAndParseJson("aws ecs list-attributes --region ${region} --cluster ${cluster} --target-type container-instance --attribute-name ecs.instance-type")
   for ( def attr : result["attributes"] )
   {
     ret += attr["targetId"] + " "
@@ -66,18 +66,18 @@ def awsGetInstancesForCluster(def cluster, def region = DEFAULT_REGION )
 def awsStartTaskForCluster(def task, def cluster , def region = DEFAULT_REGION )
 {
   def containers = awsGetInstancesForCluster(cluster)
-  return _sh("aws ecs start-task --task-definition ${task} --region ${region} --cluster ${cluster} --container-instances $containers" )
+  return execAndParseJson("aws ecs start-task --task-definition ${task} --region ${region} --cluster ${cluster} --container-instances $containers" )
 }
 
 def awsRestartTasksForCluster(def task, def cluster , def region = DEFAULT_REGION )
 {
   // Stop all tasks related to the cluster, the cluster will then relaunch the task with the :latest tag
-  def result = _sh("aws ecs list-tasks --region ${region} --service ${cluster} --cluster ${cluster}")
+  def result = execAndParseJson("aws ecs list-tasks --region ${region} --service ${cluster} --cluster ${cluster}")
   def ret = [ failures : [] ]
   // If tasks are running, stop them 
   if (result["taskArns"].size() ) {
     for ( String taskId : result["taskArns"]  ) {
-      ret = _sh("aws ecs stop-task --task ${taskId} --region ${region} --cluster ${cluster}")
+      ret = execAndParseJson("aws ecs stop-task --task ${taskId} --region ${region} --cluster ${cluster}")
     }
   }
   // Otherwise start a new task 
