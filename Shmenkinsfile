@@ -9,10 +9,9 @@ def Jenkinsfile = shell.parse(new File("Jenkinsfile"))
 // SECTION TO CUSTOMIZE
 // Set required variables here
 Jenkinsfile.MAVEN_SETTINGS = "~/.m2/settings.xml"
-Jenkinsfile.env = [ BRANCH_NAME : "development"]
+Jenkinsfile.env = [ BRANCH_NAME : "test"]
 Jenkinsfile.params = [ DEPLOY_TARGET : "Do not deploy" ,SKIP_TESTS:true ]
 // End SECTION TO CUSTOMIZE
-
 
 
 @Grab(group='org.apache.maven', module='maven-model', version='3.0.2')
@@ -46,6 +45,7 @@ public class Shmenkins {
   static def string(Map m){}
   static def git (Map o){}
   static def checkout(String s) {}
+  static def junit(String s) {}
   static def readFile(String s) {
     return new File(s).text
   }
@@ -58,6 +58,7 @@ public class Shmenkins {
   static def node (String n = "",Closure body)  {body()}
   static def agent(String n = "",Closure body)  {body()}
   static def stages(String n = "",Closure body)  {body()}
+  static def post(String n = "",Closure body)  {body()}
   static def podTemplate(Map options, Closure body) {body() }
   static def container(String s, Closure body){println("Container ${s}");body() }
   static def stage(String s, Closure body){println("Stage ${s}");    body() }

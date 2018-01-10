@@ -2,13 +2,13 @@
 
 A tiny library to run your Jenkinsfile through the commandline with 100% pass through ( it will execute everything locally not in any container or remotely ).
 
-## To run , simply copy the latest [Shmenkinsfile](https://github.com/qorrect/shmenkins/blob/master/Shmenkinsfile) to the project you have your Jenkinsfile in , and run 
+## To run , simply copy the latest [Shmenkinsfile](https://github.com/qorrect/shmenkins/blob/master/Shmenkinsfile) to the project you have your Jenkinsfile in , and execute
 
 ```
-groovy Shmenkinsfile
+./Shmenkinsfile env.BRANCH_NAME=development params.SKIP_TESTS=true
 ```
 
-to have you Jenkinsfile executed locally.
+to have your Jenkinsfile executed locally.
 
 ## Customizing
 
@@ -17,8 +17,8 @@ Most scripts will need custom variables that get introduced by various plugins, 
 ```java
 // Set required variables here
 Jenkinsfile.MAVEN_SETTINGS = "~/.m2/settings.xml"
-Jenkinsfile.env = [:]
-Jenkinsfile.params = [ DEPLOY_TARGET : "Do not deploy" ]
+Jenkinsfile.env = [ BRANCH_NAME : 'development']
+Jenkinsfile.params = [ DEPLOY_TARGET : "Do not deploy" , SKIP_TESTS : true ]
 // End SECTION TO CUSTOMIZE
 ```
 

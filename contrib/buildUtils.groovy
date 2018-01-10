@@ -10,11 +10,11 @@
 
  **/
 
-import groovy.json.JsonOutput
-
-def DEEFAULT_SLACK_URL = ""
-def DEFAULT_DOCKER_REGISTRY = ""
+def DEFAULT_SLACK_URL  = 'https://hooks.slack.com/services/xxx/yyy/zzz'
+def DEFAULT_DOCKER_REGISTRY = 'registry.hub.docker.com'
 def DEFAULT_REGION =  "us-east-1"
+
+import groovy.json.JsonOutput
 
 class DeployChoices { 
   public static String NONE = "Do not deploy";
@@ -35,7 +35,7 @@ def parseJson(def json) {
   new groovy.json.JsonSlurperClassic().parseText(json)
 }
 
-def notifySlack(def text, def channel, def slackURL) {
+def notifySlack(def text, def channel, def slackURL = DEFAULT_SLACK_URL ) {
   def payload = JsonOutput.toJson([text      : text, channel   : channel, username  : "jenkins", icon_emoji: ":+1:"])
   sh "curl -X POST --data-urlencode 'payload=${payload}' '${slackURL}'"
 }
