@@ -13,28 +13,32 @@ Jenkinsfile.env = [ BRANCH_NAME : "test"]
 Jenkinsfile.params = [ DEPLOY_TARGET : "Do not deploy" ]
 // End SECTION TO CUSTOMIZE
 
-// TODO:  Set properties on object from commandline
+def expando(keys,v)
+{
+  if ( keys.size() == 0 ) { return v } 
+  else if (keys.size() == 1 ) {
+    def k = keys.pop()
+    def x = new Expando()
+    x.setProperty(k,v)
+    return x 
+  }
+  else {
+    def k = keys.pop()
+    def x = new Expando()
+    x.setProperty(k,expando(keys,v))
+    return x
+  }
+}
 
-// def setR(keys,v) {
-//   if (keys.length == 2 ) return new Expando(keys[0],keys[1])
-//   else {
-//     def k = keys.pop()
-//     def v = keys.pop()
-    
-//   }
-// }
+args.each { arg ->
+  def splits = arg.split("=") as List 
+  def k = splits[0], v=splits[1]
+  def keys = new ArrayDeque(k.split("\\.") as List)
+  def firstKey = keys.pop()
+  Jenkinsfile.setProperty(firstKey,expando(keys,v))  
+}
 
-
-// args.each { a -> 
-//   def splits = a.split("=")
-//   def k = splits[0], v=splits[1]
-//   def keys = new ArrayDeque(k.split("\\."))
-//   Jenkinsfile.setProperty(setR(keys),v)
-//   //Jenkinsfile.setProperty(k,v)
-// }
-
-
-
+print Jenkinsfile.params
 @Grab(group='org.apache.maven', module='maven-model', version='3.0.2')
 
 import groovy.json.JsonSlurper;
